@@ -51,14 +51,22 @@ export function exportExcel(sheetData, sheetName, fileName, sheetTitle, columns,
     openDownload(workbookBlob, `${fileName}.xlsx`);
 }
 function openDownload(blob, fileName) {
-    if (typeof blob === 'object' && blob instanceof Blob) {
-        blob = URL.createObjectURL(blob);
+    if (window.navigator.msSaveBlob) {
+        try {
+            window.navigator.msSaveBlob(blob, fileName);
+        } catch (e) {
+            console.log(e);
+        }
+    } else {
+        if (typeof blob === 'object' && blob instanceof Blob) {
+            blob = URL.createObjectURL(blob);
+        }
+        const aLink = document.createElement('a')
+        aLink.href = blob
+        aLink.download = fileName || ''
+        const event = new MouseEvent('click')
+        aLink.dispatchEvent(event)
     }
-    const aLink = document.createElement('a')
-    aLink.href = blob
-    aLink.download = fileName || ''
-    const event = new MouseEvent('click')
-    aLink.dispatchEvent(event)
 }
 function workbook2blob(workbook) {
     const wopts = {
